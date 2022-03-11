@@ -31,22 +31,21 @@ static int lept_parse_null(lept_context *c, lept_value *v) {
 
 static int lept_parse_false(lept_context *c, lept_value *v) {
   EXPECT(c, 'f');
-  if (c->json[0] != 'f' || c->json[1] != 'a' || c->json[2] != 'l' ||
-      c->json[3] != 's' || c->json[4] != 'e') {
+  if (c->json[0] != 'a' || c->json[1] != 'l' || c->json[2] != 's' ||
+      c->json[3] != 'e') {
     return LEPT_PARSE_INVALID_VALUE;
   }
-  c->json += 5;
+  c->json += 4;
   v->type = LEPT_FALSE;
   return LEPT_PARSE_OK;
 }
 
 static int lept_parse_true(lept_context *c, lept_value *v) {
   EXPECT(c, 't');
-  if (c->json[0] != 't' || c->json[1] != 'r' || c->json[2] != 'u' ||
-      c->json[3] != 'e') {
+  if (c->json[0] != 'r' || c->json[1] != 'u' || c->json[2] != 'e') {
     return LEPT_PARSE_INVALID_VALUE;
   }
-  c->json += 4;
+  c->json += 3;
   v->type = LEPT_TRUE;
   return LEPT_PARSE_OK;
 }
