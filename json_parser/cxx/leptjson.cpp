@@ -62,8 +62,26 @@ static int lept_parse_value(lept_context *c, lept_value *v) {
   case '\0':
     return LEPT_PARSE_EXPECT_VALUE;
   default:
+    return lept_parse_number(c, v);
+  }
+}
+
+static int lept_parse_number(lept_context *c, lept_value *v) {
+  char *end;
+  // TODO(kky) validata number
+  if (c->json[0] != '-' && (c->json[0] < '0' || c->json[0] > '9')) {
     return LEPT_PARSE_INVALID_VALUE;
   }
+  v->n = strtod(c->json, &end);
+  if (c->json == end) {
+    return LEPT_PARSE_INVALID_VALUE;
+  }
+  if (*(end - 1) == '.') {
+    return LEPT_PARSE_INVALID_VALUE;
+  }
+  c->json = end;
+  v->type = LEPT_NUMBER;
+  return LEPT_PARSE_OK;
 }
 
 int lept_parse(lept_value *v, const char *json) {
@@ -85,6 +103,11 @@ int lept_parse(lept_value *v, const char *json) {
 lept_type lept_get_type(const lept_value *v) {
   assert(v != NULL);
   return v->type;
+}
+
+double lept_get_number(const lept_value *v) {
+  assert(v != NULL && v->type == LEPT_NUMBER);
+  return v->n;
 }
 
 } // namespace leptjson

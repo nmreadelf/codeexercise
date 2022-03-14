@@ -20,6 +20,7 @@ enum {
 };
 
 typedef struct {
+  double n;
   lept_type type;
 } lept_value;
 
@@ -36,6 +37,10 @@ static int lept_parse_null(lept_context *c, lept_value *v);
 static int lept_parse_false(lept_context *c, lept_value *v);
 
 static int lept_parse_true(lept_context *c, lept_value *v);
+
+static int lept_parse_number(lept_context *c, lept_value *v);
+
+double lept_get_number(const lept_value *v);
 
 int lept_parse(lept_value *v, const char *json);
 
