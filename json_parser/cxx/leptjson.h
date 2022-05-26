@@ -30,13 +30,9 @@ typedef struct {
 
 static void lept_parse_whitespace(lept_context *c);
 
+static int lept_parse_literal(lept_context *c, lept_value *v, const char *literal, lept_type tpye);
+
 static int lept_parse_value(lept_context, lept_value *v);
-
-static int lept_parse_null(lept_context *c, lept_value *v);
-
-static int lept_parse_false(lept_context *c, lept_value *v);
-
-static int lept_parse_true(lept_context *c, lept_value *v);
 
 static int lept_parse_number(lept_context *c, lept_value *v);
 
