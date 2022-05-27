@@ -27,3 +27,24 @@ public:
     return true;
   }
 };
+
+class Solution {
+public:
+    bool isPalindrome(ListNode* head) {
+        std::stack<ListNode*> v;
+        ListNode* tmp = head;
+        while (tmp != nullptr) {
+            v.push(tmp);
+            tmp = tmp->next;
+        }
+        while (head != nullptr) {
+            if (head->val != v.top()->val) {
+                return false;
+            }
+            v.pop();
+            head = head->next;
+        }
+        return true;
+    }
+};
+
