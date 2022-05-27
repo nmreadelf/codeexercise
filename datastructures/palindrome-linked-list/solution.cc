@@ -48,3 +48,38 @@ public:
     }
 };
 
+
+class Solution {
+public:
+    bool isPalindrome(ListNode* head) {
+        ListNode* slow = head;
+        ListNode* fast = head;
+        while (fast != nullptr && fast->next != nullptr) {
+            slow = slow->next;
+            fast = fast->next->next;
+        }
+        // consider odd size link list, skip middle node
+        if (fast != nullptr) {
+            slow = slow->next;
+        }
+        std::stack<ListNode*> v;
+        {
+            ListNode* l = slow;
+            while (l != nullptr) {
+                v.push(l);
+                l = l->next;
+            }
+        }
+        
+        while (!v.empty()) {
+            if (head->val != v.top()->val) {
+                return false;
+            }
+            v.pop();
+            head = head->next;
+        }
+
+        return true;
+    }
+};
+
