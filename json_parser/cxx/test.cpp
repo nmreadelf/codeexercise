@@ -10,34 +10,34 @@ TEST(LeptJSONTest, ParseNULL) {
   EXPECT_EQ(LEPT_NULL, lept_get_type(&v));
 }
 
-TEST(LeptJSONTest, parseExpectValue) {
-  lept_value v;
-
-  v.type = LEPT_FALSE;
-  EXPECT_EQ(LEPT_PARSE_EXPECT_VALUE, lept_parse(&v, ""));
-  EXPECT_EQ(LEPT_NULL, lept_get_type(&v));
-
-  v.type = LEPT_FALSE;
-  EXPECT_EQ(LEPT_PARSE_EXPECT_VALUE, lept_parse(&v, " "));
-  EXPECT_EQ(LEPT_NULL, lept_get_type(&v));
-}
-
-TEST(LeptJSONTest, parseInvalidValue) {
-  lept_value v;
-  v.type = LEPT_FALSE;
-  EXPECT_EQ(LEPT_PARSE_INVALID_VALUE, lept_parse(&v, "nul"));
-  EXPECT_EQ(LEPT_NULL, lept_get_type(&v));
-
-  v.type = LEPT_FALSE;
-  EXPECT_EQ(LEPT_PARSE_INVALID_VALUE, lept_parse(&v, "?"));
-  EXPECT_EQ(LEPT_NULL, lept_get_type(&v));
-}
-
 TEST(LeptJSONTest, parseRootNotSingular) {
-  lept_value v;
-  v.type = LEPT_FALSE;
-  EXPECT_EQ(LEPT_PARSE_ROOT_NOT_SINGULAR, lept_parse(&v, "null x"));
-  EXPECT_EQ(LEPT_NULL, lept_get_type(&v));
+  std::vector<std::string> datas{
+      "null x",
+      // invalid number
+      "0123", // after zero should be '.' or nothing
+      "0x0",
+      "0x123",
+  };
+  for (const auto &i : datas) {
+    lept_value v;
+    v.type = LEPT_FALSE;
+    auto res = lept_parse(&v, i.data());
+    EXPECT_EQ(LEPT_PARSE_ROOT_NOT_SINGULAR, res);
+    EXPECT_EQ(LEPT_NULL, lept_get_type(&v));
+  }
+}
+
+TEST(LeptJSONTest, parseNumberTooBig) {
+  std::vector<std::string> datas{
+      "1e309",
+      "-1e309",
+  };
+  for (const auto &i : datas) {
+    lept_value v;
+    auto res = lept_parse(&v, i.data());
+    EXPECT_EQ(LEPT_PARSE_NUMBER_TOO_BIG, res);
+    EXPECT_EQ(LEPT_NULL, lept_get_type(&v));
+  }
 }
 
 TEST(LeptJSONTest, parseTrue) {
@@ -52,6 +52,18 @@ TEST(LeptJSONTest, parseFalse) {
   v.type = LEPT_TRUE;
   EXPECT_EQ(LEPT_PARSE_OK, lept_parse(&v, "false"));
   EXPECT_EQ(LEPT_FALSE, lept_get_type(&v));
+}
+
+TEST(LeptJSONTest, parseExpectValue) {
+  std::vector<std::string> datas{
+      "",
+      " ",
+  };
+  for (const auto &i : datas) {
+    lept_value v;
+    auto res = lept_parse(&v, i.data());
+    EXPECT_EQ(LEPT_PARSE_EXPECT_VALUE, res);
+  }
 }
 
 TEST(LeptJSONTest, parseNumber) {
@@ -75,7 +87,20 @@ TEST(LeptJSONTest, parseNumber) {
       p{-1E-10, "-1E-10"},
       p{1.234E+10, "1.234E+10"},
       p{1.234E-10, "1.234E-10"},
-      p{0.0, "1e-10000"}, /* must underflow */
+      p{0.0, "1e-10000"},                          /* must underflow */
+      p{1.0000000000000002, "1.0000000000000002"}, /* the smallest number > 1 */
+      p{4.9406564584124654e-324,
+        "4.9406564584124654e-324"}, /* minimum denormal */
+      p{-4.9406564584124654e-324, "-4.9406564584124654e-324"},
+      p{2.2250738585072009e-308,
+        "2.2250738585072009e-308"}, /* Max subnormal double */
+      p{-2.2250738585072009e-308, "-2.2250738585072009e-308"},
+      p{2.2250738585072014e-308,
+        "2.2250738585072014e-308"}, /* Min normal positive double */
+      p{-2.2250738585072014e-308, "-2.2250738585072014e-308"},
+      p{1.7976931348623157e+308, "1.7976931348623157e+308"}, /* Max double */
+      p{-1.7976931348623157e+308, "-1.7976931348623157e+308"},
+
   };
   for (const auto &i : datas) {
     lept_value v;
@@ -87,14 +112,24 @@ TEST(LeptJSONTest, parseNumber) {
 
 TEST(LeptJSONTest, parseInvalidNumber) {
   std::vector<std::string> datas{
-      "+0",  "+1",  ".123", /* at least one digit before '.' */
-      "1.",                 /* at least one digit after '.' */
-      "INF", "inf", "NAN",  "nan",
+      "nul",
+      "?",
+
+      // invalida number
+      "+0",
+      "+1",
+      ".123", /* at least one digit before '.' */
+      "1.",   /* at least one digit after '.' */
+      "INF",
+      "inf",
+      "NAN",
+      "nan",
   };
   for (const auto &i : datas) {
     lept_value v;
     auto res = lept_parse(&v, i.data());
     EXPECT_EQ(LEPT_PARSE_INVALID_VALUE, res);
+    EXPECT_EQ(LEPT_NULL, lept_get_type(&v));
   }
 }
 

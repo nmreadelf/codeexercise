@@ -16,7 +16,8 @@ enum {
   LEPT_PARSE_OK = 0,
   LEPT_PARSE_EXPECT_VALUE,
   LEPT_PARSE_INVALID_VALUE,
-  LEPT_PARSE_ROOT_NOT_SINGULAR
+  LEPT_PARSE_ROOT_NOT_SINGULAR,
+  LEPT_PARSE_NUMBER_TOO_BIG
 };
 
 typedef struct {
@@ -30,7 +31,8 @@ typedef struct {
 
 static void lept_parse_whitespace(lept_context *c);
 
-static int lept_parse_literal(lept_context *c, lept_value *v, const char *literal, lept_type tpye);
+static int lept_parse_literal(lept_context *c, lept_value *v,
+                              const char *literal, lept_type tpye);
 
 static int lept_parse_value(lept_context, lept_value *v);
 
